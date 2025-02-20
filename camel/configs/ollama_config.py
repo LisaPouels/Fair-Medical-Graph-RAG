@@ -74,7 +74,7 @@ class OllamaConfig(BaseConfig):
     top_p: float = 1.0
     stream: bool = False
     stop: Union[str, Sequence[str], NotGiven] = NOT_GIVEN
-    max_tokens: Union[int, NotGiven] = NOT_GIVEN
+    max_tokens: int = 4096
     presence_penalty: float = 0.0
     response_format: Union[dict, NotGiven] = NOT_GIVEN
     frequency_penalty: float = 0.0

@@ -1,11 +1,12 @@
-from openai import OpenAI
+# from openai import OpenAI
 import os
 from neo4j import GraphDatabase
 import numpy as np
 from camel.storages import Neo4jGraph
 import uuid
 from summerize import process_chunks
-import openai
+# import openai
+from langchain_ollama import ChatOllama, OllamaEmbeddings
 
 sys_prompt_one = """
 Please answer the question using insights supported by provided graph-based data relevant to medical information.
@@ -16,17 +17,22 @@ Modify the response to the question using the provided references. Include preci
 """
 
 # Add your own OpenAI API key
-openai_api_key = os.getenv("OPENAI_API_KEY")
+# openai_api_key = os.getenv("OPENAI_API_KEY")
 
-def get_embedding(text, mod = "text-embedding-3-small"):
-    client = OpenAI(api_key = os.getenv("OPENAI_API_KEY"))
+# def get_embedding(text, mod = "text-embedding-3-small"):
+    # client = OpenAI(api_key = os.getenv("OPENAI_API_KEY"))
 
-    response = client.embeddings.create(
-        input=text,
-        model=mod
-    )
+    # response = client.embeddings.create(
+    #     input=text,
+    #     model=mod
+    # )
 
-    return response.data[0].embedding
+    # return response.data[0].embedding
+def get_embedding(text, mod = "llama3.2"):
+    embeddings = OllamaEmbeddings(model=mod)
+    response = embeddings.embed_query(text)
+
+    return response
 
 def fetch_texts(n4j):
     # Fetch the text for each node
@@ -80,18 +86,31 @@ def add_sum(n4j,content,gid):
     return s
 
 def call_llm(sys, user):
-    response = openai.chat.completions.create(
-        model="gpt-4-1106-preview",
-        messages=[
+    # response = openai.chat.completions.create(
+    #     model="gpt-4-1106-preview",
+    #     messages=[
+    #         {"role": "system", "content": sys},
+    #         {"role": "user", "content": f" {user}"},
+    #     ],
+    #     max_tokens=500,
+    #     n=1,
+    #     stop=None,
+    #     temperature=0.5,
+    # )
+    # return response.choices[0].message.content
+    llm = ChatOllama(
+        model="llama3.2",
+        temperature=0.5,
+        num_predict=500, #max tokens to generate
+        #num_ctx (default is 2048)
+        #more params possible
+    )
+    messages=[
             {"role": "system", "content": sys},
             {"role": "user", "content": f" {user}"},
-        ],
-        max_tokens=500,
-        n=1,
-        stop=None,
-        temperature=0.5,
-    )
-    return response.choices[0].message.content
+        ]
+    response = llm.invoke(messages)
+    return response.content
 
 def find_index_of_largest(nums):
     # Sorting the list while keeping track of the original indexes

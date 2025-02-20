@@ -2,9 +2,10 @@ import openai
 from concurrent.futures import ThreadPoolExecutor
 import tiktoken
 import os
+from langchain_ollama import ChatOllama
 
 # Add your own OpenAI API key
-openai_api_key = os.getenv("OPENAI_API_KEY")
+# openai_api_key = os.getenv("OPENAI_API_KEY")
 
 sum_prompt = """
 Generate a structured summary from the provided medical source (report, paper, or book), strictly adhering to the following categories. The summary should list key information under each category in a concise format: 'CATEGORY_NAME: Key information'. No additional explanations or detailed descriptions are necessary unless directly related to the categories:
@@ -32,18 +33,32 @@ Each category should be addressed only if relevant to the content of the medical
 """
 
 def call_openai_api(chunk):
-    response = openai.chat.completions.create(
-        model="gpt-4-1106-preview",
-        messages=[
+    # response = openai.chat.completions.create(
+    #     model="gpt-4-1106-preview",
+    #     messages=[
+    #         {"role": "system", "content": sum_prompt},
+    #         {"role": "user", "content": f" {chunk}"},
+    #     ],
+    #     max_tokens=500,
+    #     n=1,
+    #     stop=None,
+    #     temperature=0.5,
+    # )
+    # return response.choices[0].message.content
+    llm = ChatOllama(
+        model="llama3.2",
+        temperature=0.5,
+        num_predict=500, #max tokens to generate
+        #num_ctx (default is 2048)
+        #more params possible
+    )
+    messages=[
             {"role": "system", "content": sum_prompt},
             {"role": "user", "content": f" {chunk}"},
-        ],
-        max_tokens=500,
-        n=1,
-        stop=None,
-        temperature=0.5,
-    )
-    return response.choices[0].message.content
+        ]
+    response = llm.invoke(messages)
+    print("Response:           ", response)
+    return response.content
 
 def split_into_chunks(text, tokens=500):
     encoding = tiktoken.encoding_for_model('gpt-4-1106-preview')

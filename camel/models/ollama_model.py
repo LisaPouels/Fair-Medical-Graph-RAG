@@ -19,7 +19,7 @@ from camel.configs import OLLAMA_API_PARAMS
 from camel.messages import OpenAIMessage
 from camel.types import ChatCompletion, ChatCompletionChunk, ModelType
 from camel.utils import BaseTokenCounter, OpenAITokenCounter
-
+from transformers import AutoTokenizer
 
 class OllamaModel:
     r"""Ollama service interface."""
@@ -57,6 +57,12 @@ class OllamaModel:
         self._token_counter = token_counter
         self.check_model_config()
 
+    
+    def _token_counter_transformer(self, messages):
+        tokenizer = AutoTokenizer.from_pretrained("teknium/OpenHermes-2.5-Mistral-7B")
+        tokens = tokenizer.apply_chat_templates(messages)
+        return len(tokens)
+
     @property
     def token_counter(self) -> BaseTokenCounter:
         r"""Initialize the token counter for the model backend.
@@ -67,7 +73,9 @@ class OllamaModel:
         """
         if not self._token_counter:
             self._token_counter = OpenAITokenCounter(ModelType.GPT_3_5_TURBO)
+            # self._token_counter = _token_counter_transformer()
         return self._token_counter
+
 
     def check_model_config(self):
         r"""Check whether the model configuration contains any

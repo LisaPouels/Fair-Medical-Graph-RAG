@@ -1,11 +1,12 @@
 from langchain_core.prompts import ChatPromptTemplate
 import uuid
-from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
 import os
 from typing import Optional
 from langchain_core.pydantic_v1 import BaseModel
 from langchain.chains import create_extraction_chain_pydantic
 from dotenv import load_dotenv
+from langchain_ollama import ChatOllama
 
 load_dotenv()
 
@@ -18,13 +19,14 @@ class AgenticChunker:
         self.generate_new_metadata_ind = True
         self.print_logging = True
 
-        if openai_api_key is None:
-            openai_api_key = os.getenv("OPENAI_API_KEY")
+        # if openai_api_key is None:
+        #     openai_api_key = os.getenv("OPENAI_API_KEY")
 
-        if openai_api_key is None:
-            raise ValueError("API key is not provided and not found in environment variables")
+        # if openai_api_key is None:
+        #     raise ValueError("API key is not provided and not found in environment variables")
 
-        self.llm = ChatOpenAI(model='gpt-4-1106-preview', openai_api_key=openai_api_key, temperature=0)
+        # self.llm = ChatOpenAI(model='gpt-4-1106-preview', openai_api_key=openai_api_key, temperature=0)
+        self.llm = ChatOllama(model='llama3.2', temperature=0)
 
     def add_propositions(self, propositions):
         for proposition in propositions:
@@ -292,10 +294,11 @@ class AgenticChunker:
             chunk_id: Optional[str]
             
         # Extraction to catch-all LLM responses. This is a bandaid
-        extraction_chain = create_extraction_chain_pydantic(pydantic_schema=ChunkID, llm=self.llm)
-        extraction_found = extraction_chain.run(chunk_found)
+        # extraction_chain = create_extraction_chain_pydantic(pydantic_schema=ChunkID, llm=self.llm)
+        extraction_chain = self.llm.with_structured_output(ChunkID)
+        extraction_found = extraction_chain.invoke(chunk_found)
         if extraction_found:
-            chunk_found = extraction_found[0].chunk_id
+            chunk_found = extraction_found.chunk_id
 
         # If you got a response that isn't the chunk id limit, chances are it's a bad response or it found nothing
         # So return nothing

@@ -29,7 +29,7 @@ from typing import (
 from pydantic import BaseModel
 
 from camel.agents.base import BaseAgent
-from camel.configs import ChatGPTConfig
+from camel.configs import ChatGPTConfig, OllamaConfig
 from camel.memories import (
     AgentMemory,
     ChatHistoryMemory,
@@ -155,10 +155,14 @@ class ChatAgent(BaseAgent):
             model
             if model is not None
             else ModelFactory.create(
-                model_platform=ModelPlatformType.OPENAI,
-                model_type=ModelType.GPT_4O_MINI,
-                model_config_dict=ChatGPTConfig().as_dict(),
-                api_key=self._api_key,
+            #     model_platform=ModelPlatformType.OPENAI,
+            #     model_type=ModelType.GPT_4O_MINI,
+            #     model_config_dict=ChatGPTConfig().as_dict(),
+            #     api_key=self._api_key,
+                #use ollama
+                model_platform=ModelPlatformType.OLLAMA,
+                model_type="llama3.2",
+                model_config_dict=OllamaConfig().as_dict(),
             )
         )
         self.output_language: Optional[str] = output_language

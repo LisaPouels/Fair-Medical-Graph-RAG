@@ -5,6 +5,8 @@ dataset_test
 test*
 .dockerignore
 app.sh
+env/*
+.env
 
 ### Python template
 # Byte-compiled / optimized / DLL files
