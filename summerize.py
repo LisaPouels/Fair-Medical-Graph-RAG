@@ -46,8 +46,8 @@ def call_openai_api(chunk):
     # )
     # return response.choices[0].message.content
     llm = ChatOllama(
-        model="llama3.2",
-        temperature=0.5,
+        model="qwen2",
+        temperature=0.2,
         num_predict=500, #max tokens to generate
         #num_ctx (default is 2048)
         #more params possible

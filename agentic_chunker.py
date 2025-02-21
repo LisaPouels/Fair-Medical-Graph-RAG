@@ -26,7 +26,7 @@ class AgenticChunker:
         #     raise ValueError("API key is not provided and not found in environment variables")
 
         # self.llm = ChatOpenAI(model='gpt-4-1106-preview', openai_api_key=openai_api_key, temperature=0)
-        self.llm = ChatOllama(model='llama3.2', temperature=0)
+        self.llm = ChatOllama(model='qwen2', temperature=0)
 
     def add_propositions(self, propositions):
         for proposition in propositions:
@@ -302,8 +302,9 @@ class AgenticChunker:
 
         # If you got a response that isn't the chunk id limit, chances are it's a bad response or it found nothing
         # So return nothing
-        if len(chunk_found) != self.id_truncate_limit:
-            return None
+        if chunk_found:
+            if len(chunk_found) != self.id_truncate_limit:
+                return None
 
         return chunk_found
     
@@ -318,6 +319,8 @@ class AgenticChunker:
         if get_type == 'list_of_strings':
             chunks = []
             for chunk_id, chunk in self.chunks.items():
+                for prop in chunk['propositions']:
+                    print("Prop: ", prop)
                 chunks.append(" ".join([x for x in chunk['propositions']]))
             return chunks
     

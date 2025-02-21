@@ -28,7 +28,7 @@ Modify the response to the question using the provided references. Include preci
     # )
 
     # return response.data[0].embedding
-def get_embedding(text, mod = "llama3.2"):
+def get_embedding(text, mod = "qwen2"):
     embeddings = OllamaEmbeddings(model=mod)
     response = embeddings.embed_query(text)
 
@@ -99,8 +99,8 @@ def call_llm(sys, user):
     # )
     # return response.choices[0].message.content
     llm = ChatOllama(
-        model="llama3.2",
-        temperature=0.5,
+        model="qwen2",
+        temperature=0.2,
         num_predict=500, #max tokens to generate
         #num_ctx (default is 2048)
         #more params possible

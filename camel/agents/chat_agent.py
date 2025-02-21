@@ -161,8 +161,9 @@ class ChatAgent(BaseAgent):
             #     api_key=self._api_key,
                 #use ollama
                 model_platform=ModelPlatformType.OLLAMA,
-                model_type="llama3.2",
+                model_type="qwen2",
                 model_config_dict=OllamaConfig().as_dict(),
+                url="http://localhost:11434"
             )
         )
         self.output_language: Optional[str] = output_language

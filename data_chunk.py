@@ -27,13 +27,18 @@ def get_propositions(text, runnable, extraction_chain):
     # propositions = extraction_chain.invoke(runnable_output)[0].sentences
     propositions = extraction_chain.invoke(runnable_output)
     print("Propositions:     ", propositions)
+    if not propositions:
+        print("No propositions found, trying again")
+        propositions = extraction_chain.invoke(runnable_output)
+    if propositions.sentences:
+        propositions = propositions.sentences
     return propositions
 
 def run_chunk(essay):
 
     obj = hub.pull("wfh/proposal-indexing")
     # llm = ChatOpenAI(model='gpt-4-1106-preview', openai_api_key = os.getenv("OPENAI_API_KEY"))
-    llm = ChatOllama(model='llama3.2')
+    llm = ChatOllama(model='qwen2')
 
     runnable = obj | llm
 
